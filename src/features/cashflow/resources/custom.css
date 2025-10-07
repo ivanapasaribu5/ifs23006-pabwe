@@ -1,0 +1,51 @@
+.app-navbar {
+  background-color: #0b5ed7; /* custom primary */
+}
+
+body {
+  padding-top: 52px; /* slightly smaller */
+}
+.sidebar {
+  display: none; /* sidebar removed as requested */
+}
+.main-content {
+  margin-left: 0;
+  padding: 20px;
+}
+.nav-link {
+  color: #333;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+.nav-link:hover,
+.nav-link.active {
+  background-color: #0b5ed7; /* different shade */
+  color: white;
+}
+.nav-link:hover {
+  background-color: #0ca0ff;
+  color: white;
+}
+.nav-link i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
+  }
+}
