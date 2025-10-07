@@ -1,49 +1,52 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { asyncSetIsCashflowChange, asyncSetCashflows } from "../states/action";
+import { showErrorDialog } from "../../../helpers/toolsHelper";
 
 function ChangeModal({ cashflow, onClose }) {
   const dispatch = useDispatch();
 
-  // Normalisasi sumber dana untuk data yang sudah ada
-  const normalizeSource = (src) => {
-    const map = { transfer: "transfer", cash: "cash", savings: "savings" };
-    return map[src] || "cash";
-  };
-
-  const [type, setType] = useState(cashflow.type);
-  const [source, setSource] = useState(normalizeSource(cashflow.source));
-  const [label, setLabel] = useState(cashflow.label);
-  const [description, setDescription] = useState(cashflow.description);
-  const [nominal, setNominal] = useState(cashflow.nominal);
-
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  // 🧠 Normalisasi sumber dana agar sesuai dengan enum backend
-  const sourceMap = {
-    transfer: "transfer",
-    savings: "savings",
-    cash: "cash",
-  };
-  const normalizedSource = sourceMap[source] || "cash";
-
-  // Pastikan urutan argumen sesuai fungsi asyncSetIsCashflowChange
-  await dispatch(
-    asyncSetIsCashflowChange(
-      cashflow.id,
-      type,
-      normalizedSource,
-      label,
-      description,
-      Number(nominal)
-    )
+  // Inisialisasi state langsung dari props
+  const [label, setLabel] = useState(cashflow.label || "");
+  const [description, setDescription] = useState(cashflow.description || "");
+  const [nominal, setNominal] = useState(cashflow.nominal || "");
+  const [type, setType] = useState(cashflow.type || "inflow");
+  // Pastikan source selalu lowercase untuk konsistensi
+  const [source, setSource] = useState(
+    (cashflow.source || "cash").toLowerCase()
   );
 
-  // Refresh daftar
-  await dispatch(asyncSetCashflows());
-  onClose();
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!label.trim() || !nominal) {
+      showErrorDialog("Label dan Nominal wajib diisi");
+      return;
+    }
+
+    const numNominal = Number(nominal);
+    if (Number.isNaN(numNominal) || numNominal <= 0) {
+      showErrorDialog("Nominal harus berupa angka positif.");
+      return;
+    }
+
+    // Tidak perlu mapping di sini, karena sudah ditangani di cashflowApi.js
+    // Cukup kirim nilai state (lowercase)
+    await dispatch(
+      asyncSetIsCashflowChange(
+        cashflow.id,
+        type,
+        source,
+        label,
+        description,
+        numNominal
+      )
+    );
+
+    // Refresh daftar cashflow setelah update
+    await dispatch(asyncSetCashflows());
+    onClose();
+  };
 
   return (
     <div className="modal show d-block" tabIndex="-1">
@@ -76,7 +79,18 @@ function ChangeModal({ cashflow, onClose }) {
                   className="form-control"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Nominal (Rp)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={nominal}
+                  onChange={(e) => setNominal(e.target.value)}
+                  required
+                />
               </div>
 
               <div className="mb-3">
@@ -99,32 +113,22 @@ function ChangeModal({ cashflow, onClose }) {
                   onChange={(e) => setSource(e.target.value)}
                 >
                   <option value="cash">Cash</option>
-                  <option value="transfer">Transfer</option>
+                  <option value="loans">Loans</option>
                   <option value="savings">Savings</option>
                 </select>
               </div>
-
-              <div className="mb-3">
-                <label className="form-label">Nominal (Rp)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={nominal}
-                  onChange={(e) => setNominal(e.target.value)}
-                  required
-                />
-              </div>
             </div>
+
             <div className="modal-footer">
-              <button type="submit" className="btn btn-warning">
-                Simpan Perubahan
-              </button>
               <button
                 type="button"
                 className="btn btn-secondary"
                 onClick={onClose}
               >
                 Batal
+              </button>
+              <button type="submit" className="btn btn-warning">
+                Simpan Perubahan
               </button>
             </div>
           </form>

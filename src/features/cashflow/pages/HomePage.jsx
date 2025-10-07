@@ -286,7 +286,7 @@ function HomePage() {
                         {c.type}
                       </span>
                     </td>
-                    <td>{c.source}</td>
+                    <td className="text-capitalize">{c.source}</td>
                     <td>Rp {c.nominal.toLocaleString()}</td>
                     <td>{c.description}</td>
                     <td>

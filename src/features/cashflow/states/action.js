@@ -136,6 +136,8 @@ export function asyncSetIsCashflowChange(
       );
       showSuccessDialog(message || "Berhasil mengubah data cash flow");
       dispatch(setIsCashflowChangedActionCreator(true));
+      // Refetch cashflows to update the table
+      dispatch(asyncSetCashflows());
     } catch (error) {
       showErrorDialog(error.message);
     }

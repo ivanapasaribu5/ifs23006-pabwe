@@ -16,7 +16,6 @@ function AddModal({ onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Client-side validation
     if (!label || !label.trim()) {
       showErrorDialog("Label harus diisi.");
       return;
@@ -33,13 +32,12 @@ function AddModal({ onClose }) {
       return;
     }
 
-  const allowedSources = ["cash", "transfer", "savings"];
-  if (!allowedSources.includes(source)) {
-    showErrorDialog("Sumber dana tidak valid.");
-    return;
-  }
+    const allowedSources = ["cash", "loans", "savings"];
+    if (!allowedSources.includes(source)) {
+      showErrorDialog("Sumber dana tidak valid.");
+      return;
+    }
 
-    // Debug payload (lihat console)
     console.debug("Posting cashflow payload:", {
       type,
       source,
@@ -110,7 +108,7 @@ function AddModal({ onClose }) {
                   onChange={(e) => setSource(e.target.value)}
                 >
                   <option value="cash">Cash</option>
-                  <option value="transfer">Transfer</option>
+                  <option value="loans">Loans</option>
                   <option value="savings">Savings</option>
                 </select>
               </div>

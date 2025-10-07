@@ -1,14 +1,26 @@
 import apiHelper from "../../../helpers/apiHelper";
 
 const cashflowApi = (() => {
-  const BASE_URL = `${DELCOM_BASEURL}/cash-flows`;
+  const BASE_URL = `${DELCOM_BASEURL}/cash-flows`; // eslint-disable-line no-undef
 
-  // Utility untuk buat URL endpoint
   function _url(path = "") {
     return `${BASE_URL}${path}`;
   }
 
-  // 🟢 GET: Ambil semua data cash flow (dengan filter opsional)
+  // 🔁 Normalisasi dari API → UI
+  function _normalizeSourceFromApi(src) {
+    // Tidak perlu konversi lagi, karena UI dan API sama-sama menggunakan 'loans'
+    return src;
+  }
+
+  // 🔁 Mapping dari UI → API
+  function _mapSourceToApi(src) {
+    // Tidak perlu konversi lagi
+    const allowedSources = ["cash", "savings", "loans"];
+    return allowedSources.includes(src) ? src : "cash";
+  }
+
+  // 🟢 GET all
   async function getCashflows(
     type = "",
     source = "",
@@ -32,10 +44,13 @@ const cashflowApi = (() => {
     const { success, message, data } = await response.json();
     if (!success) throw new Error(message);
 
-    return data.cash_flows || [];
+    return (data.cash_flows || []).map((cf) => ({
+      ...cf,
+      source: _normalizeSourceFromApi(cf.source),
+    }));
   }
 
-  // 🟢 GET: Ambil 1 cash flow berdasarkan ID
+  // 🟢 GET by ID
   async function getCashflowById(cashflowId) {
     const response = await apiHelper.fetchData(_url(`/${cashflowId}`), {
       method: "GET",
@@ -45,39 +60,32 @@ const cashflowApi = (() => {
     const { success, message, data } = await response.json();
     if (!success) throw new Error(message);
 
-    return data.cash_flow;
+    const cf = data.cash_flow;
+    return { ...cf, source: _normalizeSourceFromApi(cf.source) };
   }
 
-async function postCashflow(type, source, label, description, nominal, date) {
-  const validSources = {
-    cash: "cash",
-    transfer: "transfer",
-    savings: "savings",
-  };
-  const mappedSource = validSources[source] || "cash";
+  // 🟢 POST
+  async function postCashflow(type, source, label, description, nominal, date) {
+    const mappedSource = _mapSourceToApi(source);
 
-  const params = new URLSearchParams({
-    type,
-    source: mappedSource,
-    source_type: mappedSource,
-    payment_method: mappedSource,
-    label,
-    description,
-    nominal,
-    date,
-  });
+    const params = new URLSearchParams({
+      type,
+      source: mappedSource,
+      label,
+      description,
+      nominal,
+      date,
+    });
 
-  // 🔍 Tambahkan log ini
-  console.log("📦 Payload dikirim ke API:", Object.fromEntries(params));
+    console.log("📦 POST Payload:", Object.fromEntries(params));
 
-  const response = await apiHelper.fetchData(`${DELCOM_BASEURL}/cash-flows`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: params,
-  });
-
+    const response = await apiHelper.fetchData(_url(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params,
+    });
 
     const { success, message, data } = await response.json();
     if (!success) throw new Error(message);
@@ -85,7 +93,7 @@ async function postCashflow(type, source, label, description, nominal, date) {
     return data;
   }
 
-  // 🟢 PUT: Ubah data cash flow berdasarkan ID
+  // 🟢 PUT
   async function putCashflow(
     cashflowId,
     type,
@@ -94,13 +102,7 @@ async function postCashflow(type, source, label, description, nominal, date) {
     description,
     nominal
   ) {
-    // ✅ mapping sumber dana agar sesuai backend
-    const validSources = {
-      cash: "cash",
-      transfer: "transfer",
-      savings: "savings",
-    };
-    const mappedSource = validSources[source] || "cash";
+    const mappedSource = _mapSourceToApi(source);
 
     const params = new URLSearchParams({
       type,
@@ -109,6 +111,8 @@ async function postCashflow(type, source, label, description, nominal, date) {
       description,
       nominal,
     });
+
+    console.log("📦 PUT Payload:", Object.fromEntries(params));
 
     const response = await apiHelper.fetchData(_url(`/${cashflowId}`), {
       method: "PUT",
@@ -124,7 +128,7 @@ async function postCashflow(type, source, label, description, nominal, date) {
     return message;
   }
 
-  // 🟢 POST: Ubah cover cash flow
+  // 🟢 POST cover
   async function postCashflowCover(cashflowId, coverFile) {
     const formData = new FormData();
     formData.append("cover", coverFile, coverFile.name);
@@ -141,7 +145,7 @@ async function postCashflow(type, source, label, description, nominal, date) {
     return message;
   }
 
-  // 🟢 DELETE: Hapus cash flow berdasarkan ID
+  // 🟢 DELETE
   async function deleteCashflow(cashflowId) {
     const response = await apiHelper.fetchData(_url(`/${cashflowId}`), {
       method: "DELETE",
@@ -154,7 +158,6 @@ async function postCashflow(type, source, label, description, nominal, date) {
     return message;
   }
 
-  // 🧩 Tambahan: label & statistik
   return {
     getCashflows,
     getCashflowById,
@@ -180,10 +183,7 @@ async function postCashflow(type, source, label, description, nominal, date) {
       }).toString();
       const response = await apiHelper.fetchData(
         _url(`/status/daily${query ? `?${query}` : ""}`),
-        {
-          method: "GET",
-          headers: {},
-        }
+        { method: "GET", headers: {} }
       );
       const { success, message, data } = await response.json();
       if (!success) throw new Error(message);
@@ -197,10 +197,7 @@ async function postCashflow(type, source, label, description, nominal, date) {
       }).toString();
       const response = await apiHelper.fetchData(
         _url(`/status/monthly${query ? `?${query}` : ""}`),
-        {
-          method: "GET",
-          headers: {},
-        }
+        { method: "GET", headers: {} }
       );
       const { success, message, data } = await response.json();
       if (!success) throw new Error(message);

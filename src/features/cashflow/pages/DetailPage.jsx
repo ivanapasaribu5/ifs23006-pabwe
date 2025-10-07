@@ -51,7 +51,8 @@ function DetailPage() {
             </span>
           </p>
           <p>
-            <strong>Sumber:</strong> {cashflow.source}
+            <strong>Sumber:</strong>
+            <span className="text-capitalize"> {cashflow.source}</span>
           </p>
           <p>
             <strong>Nominal:</strong> Rp {cashflow.nominal.toLocaleString()}
@@ -67,10 +68,7 @@ function DetailPage() {
             >
               <i className="bi bi-pencil"></i> Edit
             </button>
-            <button
-              className="btn btn-secondary"
-              onClick={() => navigate("/")}
-            >
+            <button className="btn btn-secondary" onClick={() => navigate("/")}>
               <i className="bi bi-arrow-left"></i> Kembali
             </button>
           </div>
