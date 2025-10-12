@@ -1,16 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch } from "react-redux";
-import {
-  asyncSetIsCashflowDelete,
-  asyncSetCashflows,
-} from "../states/action";
+import { asyncDeleteCashflow } from "../states/action";
 
 function DeleteModal({ cashflow, onClose }) {
   const dispatch = useDispatch();
 
   async function handleDelete() {
-    await dispatch(asyncSetIsCashflowDelete(cashflow.id));
-    await dispatch(asyncSetCashflows()); // refresh daftar cashflow
+    await dispatch(asyncDeleteCashflow({ cashflowId: cashflow.id }));
     onClose(); // tutup modal
   }
 
@@ -34,7 +30,7 @@ function DeleteModal({ cashflow, onClose }) {
         tabIndex="-1"
         style={{ display: "block" }}
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-lg">
           <div className="modal-content">
             <div className="modal-header bg-danger text-white">
               <h5 className="modal-title">Konfirmasi Hapus</h5>

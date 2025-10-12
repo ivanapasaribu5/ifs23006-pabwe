@@ -1,7 +1,9 @@
 import apiHelper from "../../../helpers/apiHelper";
 
 const cashflowApi = (() => {
-  const BASE_URL = `${DELCOM_BASEURL}/cash-flows`; // eslint-disable-line no-undef
+  const DELCOM_BASEURL =
+    import.meta.env.VITE_DELCOM_BASEURL || "https://open-api.delcom.org/api/v1";
+  const BASE_URL = `${DELCOM_BASEURL}/cash-flows`;
 
   function _url(path = "") {
     return `${BASE_URL}${path}`;
@@ -38,23 +40,32 @@ const cashflowApi = (() => {
 
     const response = await apiHelper.fetchData(_url(query ? `?${query}` : ""), {
       method: "GET",
-      headers: {},
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
 
     const { success, message, data } = await response.json();
     if (!success) throw new Error(message);
 
-    return (data.cash_flows || []).map((cf) => ({
+    const mappedCashflows = (data.cash_flows || []).map((cf) => ({
       ...cf,
       source: _normalizeSourceFromApi(cf.source),
     }));
+
+    return {
+      cash_flows: mappedCashflows,
+      stats: data.stats || {},
+    };
   }
 
   // 🟢 GET by ID
   async function getCashflowById(cashflowId) {
     const response = await apiHelper.fetchData(_url(`/${cashflowId}`), {
       method: "GET",
-      headers: {},
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
 
     const { success, message, data } = await response.json();
@@ -65,26 +76,30 @@ const cashflowApi = (() => {
   }
 
   // 🟢 POST
-  async function postCashflow(type, source, label, description, nominal, date) {
+  async function postCashflow(type, source, label, description, nominal, created_at = null) {
     const mappedSource = _mapSourceToApi(source);
 
-    const params = new URLSearchParams({
+    const payload = {
       type,
       source: mappedSource,
       label,
       description,
       nominal,
-      date,
-    });
+    };
 
-    console.log("📦 POST Payload:", Object.fromEntries(params));
+    if (created_at) {
+      payload.created_at = created_at;
+    }
+
+    console.log("📦 POST Payload:", payload);
 
     const response = await apiHelper.fetchData(_url(), {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
       },
-      body: params,
+      body: JSON.stringify(payload),
     });
 
     const { success, message, data } = await response.json();
@@ -117,6 +132,7 @@ const cashflowApi = (() => {
     const response = await apiHelper.fetchData(_url(`/${cashflowId}`), {
       method: "PUT",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: params,
@@ -135,7 +151,9 @@ const cashflowApi = (() => {
 
     const response = await apiHelper.fetchData(_url(`/${cashflowId}/cover`), {
       method: "POST",
-      headers: {},
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
       body: formData,
     });
 
@@ -149,7 +167,9 @@ const cashflowApi = (() => {
   async function deleteCashflow(cashflowId) {
     const response = await apiHelper.fetchData(_url(`/${cashflowId}`), {
       method: "DELETE",
-      headers: {},
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
 
     const { success, message } = await response.json();
@@ -169,7 +189,9 @@ const cashflowApi = (() => {
     async getLabels() {
       const response = await apiHelper.fetchData(_url(`/labels`), {
         method: "GET",
-        headers: {},
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       const { success, message, data } = await response.json();
       if (!success) throw new Error(message);
@@ -182,8 +204,13 @@ const cashflowApi = (() => {
         ...(end_date && { end_date }),
       }).toString();
       const response = await apiHelper.fetchData(
-        _url(`/status/daily${query ? `?${query}` : ""}`),
-        { method: "GET", headers: {} }
+        _url(`/stats/daily${query ? `?${query}` : ""}`),
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       const { success, message, data } = await response.json();
       if (!success) throw new Error(message);
@@ -196,8 +223,13 @@ const cashflowApi = (() => {
         ...(end_date && { end_date }),
       }).toString();
       const response = await apiHelper.fetchData(
-        _url(`/status/monthly${query ? `?${query}` : ""}`),
-        { method: "GET", headers: {} }
+        _url(`/stats/monthly${query ? `?${query}` : ""}`),
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       const { success, message, data } = await response.json();
       if (!success) throw new Error(message);

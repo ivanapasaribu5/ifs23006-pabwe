@@ -12,7 +12,7 @@ import {
   userReducer,
   isProfileReducer,
 } from "./features/users/states/reducer";
-import * as cashflowReducer from "./features/cashflow/states/reducer";
+import cashflowReducer from "./features/cashflow/states/reducer";
 
 const store = configureStore({
   reducer: {
@@ -29,20 +29,8 @@ const store = configureStore({
     isChangeProfilePhoto: isChangeProfilePhotoActionCreator,
     isChangeProfilePassword: isChangeProfilePasswordReducer,
 
-    // Cashflows reducers
-    cashflows: cashflowReducer.cashflowsReducer,
-    cashflow: cashflowReducer.cashflowReducer,
-    isCashflow: cashflowReducer.isCashflowReducer,
-    isCashflowAdd: cashflowReducer.isCashflowAddReducer,
-    isCashflowAdded: cashflowReducer.isCashflowAddedReducer,
-    isCashflowChange: cashflowReducer.isCashflowChangeReducer,
-    isCashflowChanged: cashflowReducer.isCashflowChangedReducer,
-    isCashflowChangeCover: cashflowReducer.isCashflowChangeCoverReducer,
-    isCashflowChangedCover: cashflowReducer.isCashflowChangedCoverReducer,
-    isCashflowDeleted: cashflowReducer.isCashflowDeletedReducer,
-    labels: cashflowReducer.labelsReducer,
-    statusDaily: cashflowReducer.statusDailyReducer,
-    statusMonthly: cashflowReducer.statusMonthlyReducer,
+    // Cashflow reducer
+    cashflow: cashflowReducer,
   },
 });
 

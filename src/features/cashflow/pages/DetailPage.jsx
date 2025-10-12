@@ -10,7 +10,7 @@ function DetailPage() {
   const { cashflowId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const cashflow = useSelector((state) => state.cashflow);
+  const cashflow = useSelector((state) => state.cashflow.cashflow);
 
   useEffect(() => {
     if (cashflowId) {
@@ -38,28 +38,33 @@ function DetailPage() {
 
       <div className="card">
         <div className="card-body">
-          <p className="text-muted mb-1">{cashflow.description}</p>
-          <hr />
-          <p>
-            <strong>Jenis:</strong>{" "}
-            <span
-              className={`badge bg-${
-                cashflow.type === "inflow" ? "success" : "danger"
-              }`}
-            >
-              {cashflow.type === "inflow" ? "Pemasukan" : "Pengeluaran"}
-            </span>
-          </p>
-          <p>
-            <strong>Sumber:</strong>
-            <span className="text-capitalize"> {cashflow.source}</span>
-          </p>
-          <p>
-            <strong>Nominal:</strong> Rp {cashflow.nominal.toLocaleString()}
-          </p>
-          <p>
-            <strong>Dibuat pada:</strong> {formatDate(cashflow.created_at)}
-          </p>
+          <dl className="row">
+            <dt className="col-sm-3">ID</dt>
+            <dd className="col-sm-9">{cashflow.id}</dd>
+
+            <dt className="col-sm-3">Jenis</dt>
+            <dd className="col-sm-9">
+              <span
+                className={`badge bg-${
+                  cashflow.type === "inflow" ? "success" : "danger"
+                }`}
+              >
+                {cashflow.type === "inflow" ? "Pemasukan" : "Pengeluaran"}
+              </span>
+            </dd>
+
+            <dt className="col-sm-3">Sumber</dt>
+            <dd className="col-sm-9 text-capitalize">{cashflow.source}</dd>
+
+            <dt className="col-sm-3">Deskripsi</dt>
+            <dd className="col-sm-9">{cashflow.description}</dd>
+
+            <dt className="col-sm-3">Nominal</dt>
+            <dd className="col-sm-9">Rp {cashflow.nominal.toLocaleString()}</dd>
+
+            <dt className="col-sm-3">Dibuat pada</dt>
+            <dd className="col-sm-9">{formatDate(cashflow.created_at)}</dd>
+          </dl>
 
           <div className="mt-4 d-flex gap-2">
             <button

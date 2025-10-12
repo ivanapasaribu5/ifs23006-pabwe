@@ -1,7 +1,7 @@
 {
-  "name": "ifs18005-reactjs-todolist",
+  "name": "ifs23006-pabwe-proyek",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,10 +15,12 @@
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "framer-motion": "^12.23.16",
+    "lucide-react": "^0.545.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.1",
+    "recharts": "^3.2.1",
     "sweetalert2": "^11.23.0"
   },
   "devDependencies": {

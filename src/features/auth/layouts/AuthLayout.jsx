@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import apiHelper from "../../../helpers/apiHelper";
 import { asyncSetProfile, setIsProfile } from "../../users/states/action";
 import { useEffect } from "react";
+import "../resources/auth.css";
 
 function AuthLayout() {
   const location = useLocation();
@@ -31,44 +32,17 @@ function AuthLayout() {
   }, [isProfile]);
 
   return (
-    <div className="container-fluid">
-      <div className="row justify-content-center">
-        <div className="col-lg-5 col-md-6 col-sm-8">
-          <div className="card mt-5">
-            <div className="card-header text-center pb-0">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                style={{ width: "64px", height: "64px" }}
-              />
-              <ul className="nav nav-tabs mt-2">
-                <li className="nav-item">
-                  <NavLink
-                    to="/auth/login"
-                    className={`nav-link ${
-                      location.pathname === "/auth/login" ? "active" : ""
-                    }`}
-                    aria-current="page"
-                  >
-                    Masuk
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink
-                    to="/auth/register"
-                    className={`nav-link ${
-                      location.pathname === "/auth/register" ? "active" : ""
-                    }`}
-                  >
-                    Daftar
-                  </NavLink>
-                </li>
-              </ul>
-            </div>
-            <div className="card-body">
-              <Outlet />
-            </div>
-          </div>
+    <div className="auth-container">
+      <div className="login-card">
+        <div className="login-header text-center pb-3">
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ width: "64px", height: "64px", marginBottom: "1rem" }}
+          />
+        </div>
+        <div className="login-body p-0">
+          <Outlet />
         </div>
       </div>
     </div>

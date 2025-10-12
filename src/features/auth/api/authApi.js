@@ -1,6 +1,7 @@
 import apiHelper from "../../../helpers/apiHelper";
 
 const authApi = (() => {
+  const DELCOM_BASEURL = import.meta.env.VITE_DELCOM_BASEURL || 'https://open-api.delcom.org/api/v1';
   const BASE_URL = `${DELCOM_BASEURL}/auth`;
 
   function _url(path) {

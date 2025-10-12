@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import CashFlowLayout from "./features/cashflow/layouts/CashFlowLayout";
 
 const LoginPage = lazy(() => import("./features/auth/pages/LoginPage"));
 const AuthLayout = lazy(() => import("./features/auth/layouts/AuthLayout"));
@@ -8,6 +7,8 @@ const RegisterPage = lazy(() => import("./features/auth/pages/RegisterPage"));
 const HomePage = lazy(() => import("./features/cashflow/pages/HomePage"));
 const DetailPage = lazy(() => import("./features/cashflow/pages/DetailPage"));
 const AddPage = lazy(() => import("./features/cashflow/pages/AddPage"));
+const StatusDailyPage = lazy(() => import("./features/cashflow/pages/StatusDailyPage"));
+const StatusMonthlyPage = lazy(() => import("./features/cashflow/pages/StatusMonthlyPage"));
 const ProfilePage = lazy(() => import("./features/users/pages/ProfilePage"));
 const SettingsPage = lazy(() => import("./features/users/pages/SettingsPage"));
 const CashFlowLayoutLazy = lazy(() =>
@@ -48,6 +49,8 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="cashflows/add" element={<AddPage />} />
           <Route path="cashflows/:cashflowId" element={<DetailPage />} />
+          <Route path="status-daily" element={<StatusDailyPage />} />
+          <Route path="status-monthly" element={<StatusMonthlyPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

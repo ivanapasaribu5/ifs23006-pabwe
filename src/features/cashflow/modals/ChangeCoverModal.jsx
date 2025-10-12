@@ -12,8 +12,8 @@ import {
 function ChangeCoverModal({ show, onClose, cashflow }) {
   const dispatch = useDispatch();
 
-  const isCashflowChangeCover = useSelector((state) => state.isCashflowChangeCover);
-  const isCashflowChangedCover = useSelector((state) => state.isCashflowChangedCover);
+  const isCashflowChangeCover = useSelector((state) => state.cashflow.isCashflowChangeCover);
+  const isCashflowChangedCover = useSelector((state) => state.cashflow.isCashflowChangedCover);
 
   const [loading, setLoading] = useState(false);
   const [fileCover, setFileCover] = useState(null);

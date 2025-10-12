@@ -10,9 +10,12 @@ function AddModal({ onClose }) {
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
   const [nominal, setNominal] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [created_at, setCreatedAt] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
 
-  const isAdded = useSelector((state) => state.isCashflowAdded);
+  const isAdded = useSelector((state) => state.cashflow.isCashflowAdded);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,11 +27,6 @@ function AddModal({ onClose }) {
     const numNominal = Number(nominal);
     if (!nominal || Number.isNaN(numNominal) || numNominal <= 0) {
       showErrorDialog("Nominal harus berupa angka lebih dari 0.");
-      return;
-    }
-
-    if (!date || Number.isNaN(Date.parse(date))) {
-      showErrorDialog("Tanggal tidak valid.");
       return;
     }
 
@@ -44,11 +42,11 @@ function AddModal({ onClose }) {
       label,
       description,
       nominal: numNominal,
-      date,
+      created_at,
     });
 
     await dispatch(
-      asyncSetIsCashflowAdd(type, source, label, description, numNominal, date)
+      asyncSetIsCashflowAdd(type, source, label, description, numNominal, created_at)
     );
     await dispatch(asyncSetCashflows());
     onClose();
@@ -89,6 +87,17 @@ function AddModal({ onClose }) {
               </div>
 
               <div className="mb-3">
+                <label className="form-label">Tanggal</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={created_at}
+                  onChange={(e) => setCreatedAt(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
                 <label className="form-label">Jenis Transaksi</label>
                 <select
                   className="form-select"
@@ -120,17 +129,6 @@ function AddModal({ onClose }) {
                   className="form-control"
                   value={nominal}
                   onChange={(e) => setNominal(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Tanggal</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
                   required
                 />
               </div>

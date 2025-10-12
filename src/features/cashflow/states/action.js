@@ -6,6 +6,7 @@ import cashflowApi from "../api/cashflowApi";
 
 export const ActionType = {
   SET_CASHFLOWS: "SET_CASHFLOWS",
+  SET_STATS: "SET_STATS",
   SET_CASHFLOW: "SET_CASHFLOW",
   SET_IS_CASHFLOW: "SET_IS_CASHFLOW",
   SET_IS_CASHFLOW_ADD: "SET_IS_CASHFLOW_ADD",
@@ -25,6 +26,13 @@ export function setCashflowsActionCreator(cashflows) {
   };
 }
 
+export function setStatsActionCreator(stats) {
+  return {
+    type: ActionType.SET_STATS,
+    payload: stats,
+  };
+}
+
 export function asyncSetCashflows(
   type = "",
   source = "",
@@ -34,16 +42,18 @@ export function asyncSetCashflows(
 ) {
   return async (dispatch) => {
     try {
-      const cashflows = await cashflowApi.getCashflows(
+      const response = await cashflowApi.getCashflows(
         type,
         source,
         label,
         start_date,
         end_date
       );
-      dispatch(setCashflowsActionCreator(cashflows));
+      dispatch(setCashflowsActionCreator(response.cash_flows));
+      dispatch(setStatsActionCreator(response.stats));
     } catch (error) {
       dispatch(setCashflowsActionCreator([]));
+      dispatch(setStatsActionCreator({}));
     }
   };
 }
@@ -88,11 +98,31 @@ export function setIsCashflowAddedActionCreator(isCashflowAdded) {
   };
 }
 
-export function asyncSetIsCashflowAdd(type, source, label, description, nominal, date) {
+export function asyncAddCashflow({
+  type,
+  source,
+  label,
+  description,
+  nominal,
+  created_at = null,
+}) {
   return async (dispatch) => {
     try {
-      await cashflowApi.postCashflow(type, source, label, description, nominal, date);
+      await cashflowApi.postCashflow(
+        type,
+        source,
+        label,
+        description,
+        nominal,
+        created_at
+      );
       dispatch(setIsCashflowAddedActionCreator(true));
+      // Ambil ulang daftar cashflow terbaru setelah berhasil menambahkan
+      dispatch(asyncSetCashflows());
+      const currentYear = new Date().getFullYear();
+      dispatch(
+        asyncGetStatusMonthly(`${currentYear}-01-01`, `${currentYear}-12-31`)
+      );
     } catch (error) {
       console.error("Error response dari server:", error.response?.data);
       showErrorDialog(error.response?.data?.message || error.message);
@@ -116,14 +146,14 @@ export function setIsCashflowChangedActionCreator(isCashflowChanged) {
   };
 }
 
-export function asyncSetIsCashflowChange(
+export function asyncUpdateCashflow({
   cashflowId,
   type,
   source,
   label,
   description,
-  nominal
-) {
+  nominal,
+}) {
   return async (dispatch) => {
     try {
       const message = await cashflowApi.putCashflow(
@@ -138,6 +168,10 @@ export function asyncSetIsCashflowChange(
       dispatch(setIsCashflowChangedActionCreator(true));
       // Refetch cashflows to update the table
       dispatch(asyncSetCashflows());
+      const currentYear = new Date().getFullYear();
+      dispatch(
+        asyncGetStatusMonthly(`${currentYear}-01-01`, `${currentYear}-12-31`)
+      );
     } catch (error) {
       showErrorDialog(error.message);
     }
@@ -204,11 +238,11 @@ export function asyncGetLabels() {
   };
 }
 
-export function setStatusDailyActionCreator(status) {
+function setStatusDailyActionCreator(status) {
   return { type: "SET_STATUS_DAILY", payload: status };
 }
 
-export function asyncGetStatusDaily(start_date = "", end_date = "") {
+function asyncGetStatusDaily(start_date = "", end_date = "") {
   return async (dispatch) => {
     try {
       const status = await cashflowApi.getStatusDaily(start_date, end_date);
@@ -219,11 +253,11 @@ export function asyncGetStatusDaily(start_date = "", end_date = "") {
   };
 }
 
-export function setStatusMonthlyActionCreator(status) {
+function setStatusMonthlyActionCreator(status) {
   return { type: "SET_STATUS_MONTHLY", payload: status };
 }
 
-export function asyncGetStatusMonthly(start_date = "", end_date = "") {
+function asyncGetStatusMonthly(start_date = "", end_date = "") {
   return async (dispatch) => {
     try {
       const status = await cashflowApi.getStatusMonthly(start_date, end_date);
@@ -234,12 +268,20 @@ export function asyncGetStatusMonthly(start_date = "", end_date = "") {
   };
 }
 
-export function asyncSetIsCashflowDelete(cashflowId) {
+export { asyncGetStatusDaily, asyncGetStatusMonthly };
+
+export function asyncDeleteCashflow({ cashflowId }) {
   return async (dispatch) => {
     try {
       const message = await cashflowApi.deleteCashflow(cashflowId);
       showSuccessDialog(message);
       dispatch(setIsCashflowDeletedActionCreator(true));
+      // Refetch cashflows to update the table
+      dispatch(asyncSetCashflows());
+      const currentYear = new Date().getFullYear();
+      dispatch(
+        asyncGetStatusMonthly(`${currentYear}-01-01`, `${currentYear}-12-31`)
+      );
     } catch (error) {
       showErrorDialog(error.message);
     }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { asyncSetIsCashflowChange, asyncSetCashflows } from "../states/action";
+import { asyncUpdateCashflow } from "../states/action";
 import { showErrorDialog } from "../../../helpers/toolsHelper";
 
 function ChangeModal({ cashflow, onClose }) {
@@ -15,6 +15,17 @@ function ChangeModal({ cashflow, onClose }) {
   const [source, setSource] = useState(
     (cashflow.source || "cash").toLowerCase()
   );
+
+  const labels = [
+    "Gaji Pokok",
+    "Penghasilan Sampingan",
+    "Investasi",
+    "Hadiah",
+    "Makanan & Minuman",
+    "Sewa Rumah",
+    "Cicilan Kendaraan",
+    "Tagihan Bulanan",
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,18 +44,16 @@ function ChangeModal({ cashflow, onClose }) {
     // Tidak perlu mapping di sini, karena sudah ditangani di cashflowApi.js
     // Cukup kirim nilai state (lowercase)
     await dispatch(
-      asyncSetIsCashflowChange(
-        cashflow.id,
+      asyncUpdateCashflow({
+        cashflowId: cashflow.id,
         type,
         source,
         label,
         description,
-        numNominal
-      )
+        nominal: numNominal,
+      })
     );
 
-    // Refresh daftar cashflow setelah update
-    await dispatch(asyncSetCashflows());
     onClose();
   };
 
@@ -64,13 +73,22 @@ function ChangeModal({ cashflow, onClose }) {
             <div className="modal-body">
               <div className="mb-3">
                 <label className="form-label">Label</label>
-                <input
-                  type="text"
-                  className="form-control"
+                <select
+                  name="label"
+                  className="form-select"
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                   required
-                />
+                >
+                  <option value="" disabled>
+                    Pilih Kategori...
+                  </option>
+                  {labels.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mb-3">

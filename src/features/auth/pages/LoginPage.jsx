@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { NavLink } from "react-router-dom";
 import useInput from "../../../hooks/useInput";
 import {
   asyncSetIsAuthLogin,
@@ -17,6 +18,11 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [email, onEmailChange] = useInput("");
   const [password, onPasswordChange] = useInput("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   // 1. Periksa apakah login berhasil
   useEffect(() => {
@@ -48,42 +54,53 @@ function LoginPage() {
   }
 
   return (
-    <form onSubmit={onSubmitHandler} method="POST">
-      <div className="mb-3">
-        <label className="form-label">Alamat Email</label>
+    <div className="login-content">
+      <div className="auth-header">
+        <h2 className="title">Cash Flow Manager</h2>
+        <p className="subtitle">Kelola Keuangan Pribadi Anda</p>
+      </div>
+      <hr className="divider" />
+      <form onSubmit={onSubmitHandler} method="POST" className="custom-form">
+        <label className="custom-label">Alamat Email</label>
         <input
           type="email"
           onChange={onEmailChange}
-          className="form-control"
+          className="custom-input"
           required
         />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Kata Sandi</label>
-        <input
-          type="password"
-          onChange={onPasswordChange}
-          className="form-control"
-          required
-        />
-      </div>
-      <div className="mb-3 pt-3 text-end">
-        {loading ? (
-          <button className="btn btn-primary" disabled>
-            <span
-              className="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            &nbsp;Memuat...
+        <label className="custom-label">Kata Sandi</label>
+        <div className="password-input-container">
+          <input
+            type={showPassword ? "text" : "password"}
+            onChange={onPasswordChange}
+            className="custom-input"
+            required
+          />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={togglePasswordVisibility}
+          >
+            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
           </button>
-        ) : (
-          <button type="submit" className="btn btn-primary">
-            Masuk
-          </button>
-        )}
-      </div>
-    </form>
+        </div>
+        <div className="button-container">
+          {loading ? (
+            <button className="login-btn" disabled>
+              <span className="spinner"></span>
+              Memuat...
+            </button>
+          ) : (
+            <button type="submit" className="login-btn">
+              Masuk
+            </button>
+          )}
+        </div>
+        <p className="signup-link">
+          Belum punya akun? <NavLink to="/auth/register" className="link-text">Daftar Sekarang</NavLink>
+        </p>
+      </form>
+    </div>
   );
 }
 
