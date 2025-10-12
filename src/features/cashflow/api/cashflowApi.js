@@ -76,7 +76,14 @@ const cashflowApi = (() => {
   }
 
   // 🟢 POST
-  async function postCashflow(type, source, label, description, nominal, created_at = null) {
+  async function postCashflow(
+    type,
+    source,
+    label,
+    description,
+    nominal,
+    created_at = null
+  ) {
     const mappedSource = _mapSourceToApi(source);
 
     const payload = {
@@ -115,7 +122,8 @@ const cashflowApi = (() => {
     source,
     label,
     description,
-    nominal
+    nominal,
+    created_at = null
   ) {
     const mappedSource = _mapSourceToApi(source);
 
@@ -125,6 +133,7 @@ const cashflowApi = (() => {
       label,
       description,
       nominal,
+      ...(created_at && { created_at }),
     });
 
     console.log("📦 PUT Payload:", Object.fromEntries(params));

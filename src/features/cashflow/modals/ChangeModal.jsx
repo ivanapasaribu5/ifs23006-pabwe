@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { Calendar } from "lucide-react";
 import { asyncUpdateCashflow } from "../states/action";
 import { showErrorDialog } from "../../../helpers/toolsHelper";
 
@@ -14,6 +15,9 @@ function ChangeModal({ cashflow, onClose }) {
   // Pastikan source selalu lowercase untuk konsistensi
   const [source, setSource] = useState(
     (cashflow.source || "cash").toLowerCase()
+  );
+  const [createdAt, setCreatedAt] = useState(
+    (cashflow.created_at || new Date().toISOString()).slice(0, 10)
   );
 
   const labels = [
@@ -51,6 +55,7 @@ function ChangeModal({ cashflow, onClose }) {
         label,
         description,
         nominal: numNominal,
+        created_at: createdAt,
       })
     );
 
@@ -98,6 +103,25 @@ function ChangeModal({ cashflow, onClose }) {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="createdAt" className="form-label">
+                  Tanggal Transaksi
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <Calendar size={18} />
+                  </span>
+                  <input
+                    id="createdAt"
+                    type="date"
+                    className="form-control"
+                    value={createdAt}
+                    onChange={(e) => setCreatedAt(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="mb-3">

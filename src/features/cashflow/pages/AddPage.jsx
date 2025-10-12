@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Calendar } from "lucide-react";
 import { asyncAddCashflow } from "../states/action";
 import { showErrorDialog } from "../../../helpers/toolsHelper";
 
@@ -13,6 +14,9 @@ function AddPage() {
   const [nominal, setNominal] = useState("");
   const [type, setType] = useState("outflow"); // Default to outflow
   const [source, setSource] = useState("cash"); // Default to cash
+  const [createdAt, setCreatedAt] = useState(() =>
+    new Date().toISOString().slice(0, 10)
+  ); // Default to today
 
   const labels = [
     "Gaji Pokok",
@@ -46,6 +50,7 @@ function AddPage() {
         label,
         description,
         nominal: numNominal,
+        created_at: createdAt,
       })
     );
 
@@ -89,6 +94,25 @@ function AddPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="createdAt" className="form-label">
+                    Tanggal Transaksi
+                  </label>
+                  <div className="input-group">
+                    <span className="input-group-text">
+                      <Calendar size={18} />
+                    </span>
+                    <input
+                      id="createdAt"
+                      type="date"
+                      className="form-control"
+                      value={createdAt}
+                      onChange={(e) => setCreatedAt(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="mb-3">
